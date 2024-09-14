@@ -1,0 +1,87 @@
+{
+    "ChitChatDialogue": {
+        "9dc598bd-0a06-4498-9645-77fb2f9c39d8": [
+            {
+                "message_type": "InitiateChitChatDialogue",
+                "schema_digest": "model:83143f0f84d1bdaa59a6b41c988c87556f19678098d665c7f9e449665ed5e884",
+                "sender": "agent1qd5mcvw0y2tkfmk5233gd978894c7ntxzrs8pqqxc57afdqp2uhwv5yumjp",
+                "receiver": "agent1qfm5htzy8q7m6l0d4rw0q0wmcuuq0enmxw3l5dvf49g7zzqfshg05khd0ay",
+                "message_content": "{}",
+                "timestamp": 1726340041.293705,
+                "timeout": 60
+            },
+            {
+                "message_type": "AcceptChitChatDialogue",
+                "schema_digest": "model:552329dd0cb4c4eb377735d591d118fd21c8775b8857fda5f725eb41c7673b18",
+                "sender": "agent1qd5mcvw0y2tkfmk5233gd978894c7ntxzrs8pqqxc57afdqp2uhwv5yumjp",
+                "receiver": "agent1qfm5htzy8q7m6l0d4rw0q0wmcuuq0enmxw3l5dvf49g7zzqfshg05khd0ay",
+                "message_content": "{}",
+                "timestamp": 1726340041.572759,
+                "timeout": 60
+            },
+            {
+                "message_type": "ChitChatDialogueMessage",
+                "schema_digest": "model:6545de99d39773b7d0968380e13039aed2ab435cbf114a7348af9d102384e59e",
+                "sender": "agent1qd5mcvw0y2tkfmk5233gd978894c7ntxzrs8pqqxc57afdqp2uhwv5yumjp",
+                "receiver": "agent1qfm5htzy8q7m6l0d4rw0q0wmcuuq0enmxw3l5dvf49g7zzqfshg05khd0ay",
+                "message_content": "{\"text\": \"Hello!\"}",
+                "timestamp": 1726340041.850099,
+                "timeout": 60
+            },
+            {
+                "message_type": "ChitChatDialogueMessage",
+                "schema_digest": "model:6545de99d39773b7d0968380e13039aed2ab435cbf114a7348af9d102384e59e",
+                "sender": "agent1qd5mcvw0y2tkfmk5233gd978894c7ntxzrs8pqqxc57afdqp2uhwv5yumjp",
+                "receiver": "agent1qfm5htzy8q7m6l0d4rw0q0wmcuuq0enmxw3l5dvf49g7zzqfshg05khd0ay",
+                "message_content": "{\"text\": \"Hello!\"}",
+                "timestamp": 1726340061.157183,
+                "timeout": 60
+            },
+            {
+                "message_type": "ChitChatDialogueMessage",
+                "schema_digest": "model:6545de99d39773b7d0968380e13039aed2ab435cbf114a7348af9d102384e59e",
+                "sender": "agent1qd5mcvw0y2tkfmk5233gd978894c7ntxzrs8pqqxc57afdqp2uhwv5yumjp",
+                "receiver": "agent1qfm5htzy8q7m6l0d4rw0q0wmcuuq0enmxw3l5dvf49g7zzqfshg05khd0ay",
+                "message_content": "{\"text\": \"Hi there, how are you?\"}",
+                "timestamp": 1726340069.301573,
+                "timeout": 60
+            },
+            {
+                "message_type": "ChitChatDialogueMessage",
+                "schema_digest": "model:6545de99d39773b7d0968380e13039aed2ab435cbf114a7348af9d102384e59e",
+                "sender": "agent1qd5mcvw0y2tkfmk5233gd978894c7ntxzrs8pqqxc57afdqp2uhwv5yumjp",
+                "receiver": "agent1qfm5htzy8q7m6l0d4rw0q0wmcuuq0enmxw3l5dvf49g7zzqfshg05khd0ay",
+                "message_content": "{\"text\": \"I'm doing so well, how about you?\"}",
+                "timestamp": 1726340079.06765,
+                "timeout": 60
+            },
+            {
+                "message_type": "ChitChatDialogueMessage",
+                "schema_digest": "model:6545de99d39773b7d0968380e13039aed2ab435cbf114a7348af9d102384e59e",
+                "sender": "agent1qd5mcvw0y2tkfmk5233gd978894c7ntxzrs8pqqxc57afdqp2uhwv5yumjp",
+                "receiver": "agent1qfm5htzy8q7m6l0d4rw0q0wmcuuq0enmxw3l5dvf49g7zzqfshg05khd0ay",
+                "message_content": "{\"text\": \"exit()\"}",
+                "timestamp": 1726340115.833332,
+                "timeout": 60
+            },
+            {
+                "message_type": "ChitChatDialogueMessage",
+                "schema_digest": "model:6545de99d39773b7d0968380e13039aed2ab435cbf114a7348af9d102384e59e",
+                "sender": "agent1qd5mcvw0y2tkfmk5233gd978894c7ntxzrs8pqqxc57afdqp2uhwv5yumjp",
+                "receiver": "agent1qfm5htzy8q7m6l0d4rw0q0wmcuuq0enmxw3l5dvf49g7zzqfshg05khd0ay",
+                "message_content": "{\"text\": \"exit()\"}",
+                "timestamp": 1726340116.346106,
+                "timeout": 60
+            },
+            {
+                "message_type": "ConcludeChitChatDialogue",
+                "schema_digest": "model:97f40490b2fdb6b561bcab3c4c39ea81f0964fe28ce76bcfc0b73f008eda7e58",
+                "sender": "agent1qd5mcvw0y2tkfmk5233gd978894c7ntxzrs8pqqxc57afdqp2uhwv5yumjp",
+                "receiver": "agent1qfm5htzy8q7m6l0d4rw0q0wmcuuq0enmxw3l5dvf49g7zzqfshg05khd0ay",
+                "message_content": "{}",
+                "timestamp": 1726340121.244642,
+                "timeout": 60
+            }
+        ]
+    }
+}
