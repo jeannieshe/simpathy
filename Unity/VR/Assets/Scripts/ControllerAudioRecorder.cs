@@ -1,144 +1,173 @@
-using System.Collections;
-using System.Collections.Generic;  // Add this for List<>
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.XR;
 using System.IO;
+using System;
 
-public class ControllerAudioRecorder : MonoBehaviour
+public class AudioRecorder : MonoBehaviour
 {
-    private AudioClip recordedClip; // Store the recorded audio
-    private bool isRecording = false; // Track recording state
-    private string filePath = "recording.wav";
-    private string directoryPath;
-    private InputDevice rightHandController;
-
-    // URL of the Flask backend API
-    public string flaskApiUrl = "http://localhost:5000/processAudio"; // Update this to your Flask backend URL
+    private AudioClip audioClip;
+    private string microphoneDevice;
+    private bool isRecording = false;
 
     void Start()
     {
-        // Set up the local directory path to save the recording
-        directoryPath = Application.persistentDataPath + "/Recordings";
-        if (!Directory.Exists(directoryPath))
+        // Check if any microphones are available
+        if (Microphone.devices.Length > 0)
         {
-            Directory.CreateDirectory(directoryPath);
-        }
-
-        Debug.Log("Ready to record and send audio.");
-
-        // Try to initialize the right-hand controller
-        TryInitializeRightHandController();
-    }
-
-    void TryInitializeRightHandController()
-    {
-        List<InputDevice> devices = new List<InputDevice>();
-        InputDeviceCharacteristics rightHandedControllerCharacteristics = InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller;
-        InputDevices.GetDevicesWithCharacteristics(rightHandedControllerCharacteristics, devices);
-
-        if (devices.Count > 0)
-        {
-            rightHandController = devices[0]; // Assign the first detected right-hand controller
-            Debug.Log("Right hand controller detected.");
+            // Get the first available microphone device
+            microphoneDevice = Microphone.devices[0];
+            Debug.Log("Using microphone: " + microphoneDevice);
         }
         else
         {
-            Debug.LogError("Right hand controller not found! Please check the headset and controller connection.");
+            Debug.LogError("No microphone devices found!");
         }
     }
 
-    void Update()
+    public void StartRecording()
     {
-        // Check if the right-hand controller is still valid
-        if (!rightHandController.isValid)
+        if (isRecording || microphoneDevice == null)
         {
-            TryInitializeRightHandController(); // Re-initialize if disconnected
+            Debug.LogWarning("Recording is already in progress or no microphone available.");
+            return;
         }
 
-        // Record and send audio based on the trigger button press
-        if (rightHandController.isValid)
-        {
-            bool triggerValue;
-            if (rightHandController.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue))
-            {
-                if (triggerValue && !isRecording)
-                {
-                    StartRecording();
-                }
-                else if (!triggerValue && isRecording)
-                {
-                    StopRecordingAndSendToBackend();
-                }
-            }
-        }
-    }
-
-    // Start recording audio from the microphone
-    void StartRecording()
-    {
-        int sampleRate = 44100;
-        recordedClip = Microphone.Start(null, true, 300, sampleRate); // Max 5 minutes recording
+        // Start recording, no looping, record for 10 seconds, sample rate of 44100 Hz
+        audioClip = Microphone.Start(microphoneDevice, false, 10, 44100);
         isRecording = true;
         Debug.Log("Recording started...");
     }
 
-    // Stop recording, trim the audio, save locally, and send to Flask backend
-void StopRecordingAndSendToBackend()
-{
-    if (Microphone.IsRecording(null))
+    public void StopRecordingAndSave()
     {
-        int recordingPosition = Microphone.GetPosition(null); // Get the current position of the recording
-        Microphone.End(null); // Stop the recording
-        isRecording = false;
-        Debug.Log("Recording stopped, preparing to send to Flask...");
-
-        // Trim the audio clip to the actual recording length
-        AudioClip trimmedClip = TrimAudioClip(recordedClip, recordingPosition);
-
-        // Save the recording locally
-        string fullPath = Path.Combine(directoryPath, filePath);
-        WavUtility.Save(fullPath, trimmedClip);
-        Debug.Log($"Recording saved locally at {fullPath}");
-
-        // Send the audio file to Flask backend
-        StartCoroutine(SendAudioToFlask(fullPath));
-    }
-}
-
-// Function to trim the AudioClip
-AudioClip TrimAudioClip(AudioClip clip, int recordingPosition)
-{
-    int samples = recordingPosition * clip.channels;
-    float[] data = new float[samples];
-    clip.GetData(data, 0); // Get the recorded samples up to the actual recorded position
-
-    AudioClip trimmedClip = AudioClip.Create(clip.name + "_trimmed", samples, clip.channels, clip.frequency, false);
-    trimmedClip.SetData(data, 0); // Set the trimmed data to the new clip
-
-    return trimmedClip;
-}
-
-
-    // Coroutine to send the audio to Flask backend
-    IEnumerator SendAudioToFlask(string audioFilePath)
-    {
-        byte[] audioData = File.ReadAllBytes(audioFilePath);
-        WWWForm form = new WWWForm();
-        form.AddBinaryData("audio", audioData, "userSpeech.wav", "audio/wav");
-
-        using (UnityWebRequest request = UnityWebRequest.Post(flaskApiUrl, form))
+        if (!isRecording)
         {
-            yield return request.SendWebRequest();
+            Debug.LogWarning("No recording to stop.");
+            return;
+        }
 
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError("Error sending audio to Flask: " + request.error);
-            }
-            else
-            {
-                Debug.Log("Audio successfully sent to Flask.");
-            }
+        // Stop recording
+        Microphone.End(microphoneDevice);
+        isRecording = false;
+        Debug.Log("Recording stopped.");
+
+        // Save the recorded AudioClip as a .wav file
+        SaveAudioClip(audioClip);
+    }
+
+    private void SaveAudioClip(AudioClip clip)
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, "recording.wav");
+
+        // Convert the AudioClip to WAV format
+        byte[] wavFile = AudioClipToWav(clip);
+
+        // Write the .wav file to disk
+        File.WriteAllBytes(filePath, wavFile);
+        Debug.Log("File saved at: " + filePath);
+    }
+
+    private byte[] AudioClipToWav(AudioClip clip)
+    {
+        using (MemoryStream stream = new MemoryStream())
+        {
+            int headerSize = 44; // Standard WAV header size
+            int fileSize = clip.samples * clip.channels * 2 + headerSize;
+
+            byte[] header = new byte[headerSize];
+            byte[] audioData = new byte[clip.samples * clip.channels * 2];
+
+            // Write WAV header
+            WriteWavHeader(header, fileSize, clip.frequency, clip.channels);
+            // Convert the audio clip data to bytes
+            ConvertAudioClipSamplesToBytes(clip, audioData);
+
+            // Combine header and audio data
+            stream.Write(header, 0, header.Length);
+            stream.Write(audioData, 0, audioData.Length);
+
+            return stream.ToArray();
+        }
+    }
+
+    private void WriteWavHeader(byte[] header, int fileSize, int frequency, int channels)
+    {
+        // Create a valid WAV header (44 bytes)
+        // "RIFF" chunk descriptor
+        header[0] = (byte)'R';
+        header[1] = (byte)'I';
+        header[2] = (byte)'F';
+        header[3] = (byte)'F';
+
+        // File size minus first 8 bytes of RIFF descriptor
+        BitConverter.GetBytes(fileSize - 8).CopyTo(header, 4);
+
+        // "WAVE" format
+        header[8] = (byte)'W';
+        header[9] = (byte)'A';
+        header[10] = (byte)'V';
+        header[11] = (byte)'E';
+
+        // "fmt " subchunk
+        header[12] = (byte)'f';
+        header[13] = (byte)'m';
+        header[14] = (byte)'t';
+        header[15] = (byte)' ';
+
+        // Subchunk1 size (16 for PCM)
+        BitConverter.GetBytes(16).CopyTo(header, 16);
+
+        // Audio format (1 = PCM)
+        BitConverter.GetBytes((short)1).CopyTo(header, 20);
+
+        // Number of channels
+        BitConverter.GetBytes((short)channels).CopyTo(header, 22);
+
+        // Sample rate
+        BitConverter.GetBytes(frequency).CopyTo(header, 24);
+
+        // Byte rate (SampleRate * NumChannels * BitsPerSample/8)
+        BitConverter.GetBytes(frequency * channels * 2).CopyTo(header, 28);
+
+        // Block align (NumChannels * BitsPerSample/8)
+        BitConverter.GetBytes((short)(channels * 2)).CopyTo(header, 32);
+
+        // Bits per sample (16 bits here)
+        BitConverter.GetBytes((short)16).CopyTo(header, 34);
+
+        // "data" subchunk
+        header[36] = (byte)'d';
+        header[37] = (byte)'a';
+        header[38] = (byte)'t';
+        header[39] = (byte)'a';
+
+        // Data size (NumSamples * NumChannels * BitsPerSample/8)
+        BitConverter.GetBytes(fileSize-44).CopyTo(header, 40);
+    }
+
+    private void ConvertAudioClipSamplesToBytes(AudioClip clip, byte[] audioData)
+    {
+        float[] samples = new float[clip.samples * clip.channels];
+        clip.GetData(samples, 0);
+        
+        for (int i = 0; i < samples.Length; i++)
+        {
+            short sampleShort = (short)(samples[i] * short.MaxValue);
+            byte[] bytes = BitConverter.GetBytes(sampleShort);
+            bytes.CopyTo(audioData, i * 2); // 2 bytes per sample
+        }
+    }
+
+    // For testing purposes, bind StartRecording() and StopRecordingAndSave() to keyboard inputs
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            StartRecording();
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            StopRecordingAndSave();
         }
     }
 }
