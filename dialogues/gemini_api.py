@@ -1,3 +1,6 @@
+## BE SURE TO SET UP THE PACKAGES BY RUNNING THE FOLLOWING LINE IN THE TERMINAL
+# pip install -r requirements.txt
+
 import google.generativeai as genai
 import os
 import random
