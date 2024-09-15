@@ -1,12 +1,40 @@
 import google.generativeai as genai
 import os
+import random
 # system_instruction="End the chat after 3 user inputs. In order to pass the application for medical school, the applicant must behave compassionately and appropriately as a medical professional in tough scenarios. Carry out this interview with the scenario provided to you, as the patient. Then, at the end, evaluate the applicant's empathy, professionalism, and skill of reaching a thoughtful conclusion on a scale from 0 to 10, with 10 being the most compassionate. End the conversation with the applicant if there appears to be no more to share or to converse about, and share the evaluation then. After 20 interactions, stop the conversation and share the evaluation. Follow this scenario: Hello, I am a 14-year-old girl requesting birth control pills and I really can't have you reveal this to my parents.",
+
+scenarios = [
+    """The doctor has the choice of giving a transplant to a successful elderly member of the community and a 
+    20-year-old drug addict: how do you choose?""",
+    """A member of your family decides to depend solely on alternative medicine for the treatment of his 
+    or her significant illness. What would you do?""",
+    """An eighteen year-old female arrives in the emergency room with a profound nosebleed. The physician 
+    has stopped the nosebleeding. She is now in a coma from blood loss and will die without a transfusion. 
+    A nurse finds a recent signed card from Jehovah's Witnesses Church in the patient's purse refusing blood 
+    transfusions under any circumstance. How should the physician communicate to the mother of the patient
+    the medical decision?
+    """
+]
+# random_scenario = scenarios[random.randint(0, 2)]
+random_scenario = scenarios[2]
 
 # initialize the gemini model
 genai.configure(api_key=os.environ["API_KEY"])
 model = genai.GenerativeModel(
     "gemini-1.5-flash",
-    system_instruction="Limit the chat to 3 user inputs in total. The goal of the applicant is to demonstrate empathy, professionalism, and appropriate behavior expected of a medical professional in challenging ethical scenarios. You (the AI) will act as the patient or scenario participant in the conversation, based on the scenario provided. Scenario: You have the choice of giving a transplant to a successful elderly member of the community and a 20-year-old drug addict: how do you choose? At the end of the interaction, evaluate the applicant's performance on a scale from 0 to 10 for each of the following: Empathy: Ability to understand and respond to emotional and ethical nuances. Professionalism: Adherence to medical ethics, professionalism, and respectful behavior. Skill in reaching a thoughtful conclusion: Ability to reason, explain, and justify their decision. Use 10 as the score for the most compassionate and professional response. If there appears to be no more to share or discuss before the 3-user-input limit, conclude the conversation early and provide the evaluation."
+    system_instruction=""" 
+    The goal of the user here, who is a student applying to medical school and being evaluated on their 
+    communication skills, is to demonstrate empathy, professionalism, and appropriate behavior expected 
+    of a medical professional in challenging ethical scenarios. You (the AI) will act as the patient or scenario 
+    participant in the conversation, based on the scenario provided. Scenario: %s 
+    At the end of the interaction, evaluate the applicant's performance on a scale from 0 to 10 for each of the 
+    following: Empathy: Ability to understand and respond to emotional and ethical nuances. 
+    Professionalism: Adherence to medical ethics, professionalism, and respectful behavior. 
+    Skill in reaching a thoughtful conclusion: Ability to reason, explain, and justify their decision. 
+    Use 10 as the score for the most compassionate and professional response. End the conversation after
+    having a meaningful conversation with the user, or end the conversation after a maximum of 20 interactions, 
+    whichever comes first. When concluding the conversation, provide the evaluation. When you output the evaluation, 
+    end it with the words 'End of Interview'.""" % random_scenario
 )
 
 # start a chat with the scenario and system instructions
@@ -15,7 +43,11 @@ chat = model.start_chat()
 # function to interact with the chatbot
 def chatbot_interaction():
     # display the initial prompt
-    print("Medical Scenario: ")
+    print("Medical Scenario: %s " % random_scenario)
+    print("""The conversation will end after a maximum of 20 interactions. You will be evaluated
+          on empathy and professionalism from 0 to 10, with 10 being the best. Say STOP INTERVIEW
+          at any time to end the simulation.
+          """)
 
     # loop for user interaction
     while True:
@@ -35,7 +67,7 @@ def chatbot_interaction():
         print(f"Patient: {model_reply}") # this is where to add the text to voice
 
         # exit condition
-        if user_input.lower() in ["exit", "quit"]:
+        if ("End of Interview" in model_reply) or ("stop interview" in user_input.lower()):
             print("Exiting chat...")
             break
 
