@@ -1,0 +1,111 @@
+using UnityEngine;
+using UnityEngine.XR;  // Import the XR namespace
+using System.Collections.Generic;
+
+public class ControllerAudioRecorder : MonoBehaviour
+{
+    private AudioClip recordedClip; // Store the recorded audio
+    private bool isRecording = false; // Track recording state
+    private AudioSource audioSource; // Audio source to play back the audio
+    private InputDevice rightHandController;
+
+    void Start()
+    {
+        // Initialize the AudioSource component for audio playback
+        audioSource = gameObject.AddComponent<AudioSource>();
+
+        // Get the right-hand controller (Meta Quest 2's controller)
+        TryInitializeRightHandController();
+    }
+
+    void TryInitializeRightHandController()
+    {
+        // Find the right-hand controller using InputDeviceCharacteristics
+        List<InputDevice> devices = new List<InputDevice>();
+        InputDeviceCharacteristics rightHandedControllerCharacteristics = InputDeviceCharacteristics.Right | InputDeviceCharacteristics.Controller;
+        InputDevices.GetDevicesWithCharacteristics(rightHandedControllerCharacteristics, devices);
+
+        if (devices.Count > 0)
+        {
+            rightHandController = devices[0]; // Assign the first device found
+            Debug.Log("Right hand controller detected.");
+        }
+        else
+        {
+            Debug.LogError("Right hand controller not found!");
+        }
+    }
+
+    void Update()
+    {
+        // Recheck for the right-hand controller if it's not initialized or disconnected
+        if (!rightHandController.isValid)
+        {
+            TryInitializeRightHandController(); // Attempt to reconnect the controller
+        }
+
+        // Check if the user is pressing the trigger button on the controller
+        if (rightHandController.isValid)
+        {
+            bool triggerValue;
+            if (rightHandController.TryGetFeatureValue(CommonUsages.triggerButton, out triggerValue))
+            {
+                if (triggerValue && !isRecording)
+                {
+                    StartRecording();
+                }
+                else if (!triggerValue && isRecording)
+                {
+                    StopRecordingAndPlay();
+                }
+            }
+        }
+    }
+
+    // Start recording audio from the microphone
+    void StartRecording()
+    {
+        recordedClip = Microphone.Start(null, true, 300, 44100); // No time limit, just record until button is released
+        isRecording = true; // Mark recording as active
+        Debug.Log("Recording started...");
+    }
+
+    // Stop recording and play the audio
+    void StopRecordingAndPlay()
+    {
+        if (Microphone.IsRecording(null))
+        {
+            Microphone.End(null); // Stop the recording
+            isRecording = false; // Reset the recording flag
+            Debug.Log("Recording stopped. Playing back...");
+
+            // Play the recorded audio
+            if (recordedClip != null)
+            {
+                audioSource.clip = recordedClip; // Assign the recorded clip to the AudioSource
+                audioSource.Play(); // Play the recorded audio
+            }
+        }
+    }
+}
+
+
+
+// using System.Collections;
+// using System.Collections.Generic;
+// using UnityEngine;
+
+// public class NewBehaviourScript : MonoBehaviour
+// {
+//     // Start is called before the first frame update
+//     void Start()
+//     {
+        
+//     }
+
+//     // Update is called once per frame
+//     void Update()
+//     {
+        
+//     }
+// }
