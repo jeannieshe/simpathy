@@ -1,0 +1,5 @@
+Medical Scenario: An 18-year old woman is diagnosed to have suspected bacterial meningitis. She refuses therapy and 
+    returns to the college dormitory. What should you, a physician, do in this situation? The conversation will end after a maximum of 20 interactions. You will be evaluated
+        on empathy and professionalism from 0 to 10, with 10 being the best. Say STOP INTERVIEW
+        at any time to end the simulation.
+        
