@@ -3,67 +3,65 @@ import sounddevice as sd
 from scipy.io.wavfile import write
 import whisper
 import threading
+import numpy as np
 
-#Audio recording settings
-fs = 16000  #Sample rate
-seconds = 5  #Duration of recording
-output_file = "output.wav"
+# Audio settings
+fs = 44100  # Sample rate
+recording = None
+is_recording = False  # Flag to check if currently recording
+output_file = "output.wav"  # Output WAV file
 
-#Initialize Whisper model
+# Initialize the Whisper model
 model = whisper.load_model("base")
 
 # Function to start recording
 def start_recording():
-    #Start a new thread to avoid freezing the GUI
-    threading.Thread(target=record_audio).start()
+    global recording, is_recording
+    is_recording = True
+    threading.Thread(target=record_audio).start()  # Start the recording in a separate thread
 
 def record_audio():
-    global myrecording
-    transcription_text.set("Recording started...")
-    myrecording = sd.rec(int(seconds * fs), samplerate=fs, channels=1)
-    sd.wait()  # Wait until recording is finished
-    write(output_file, fs, myrecording)  # Save as WAV file
-
+    global recording, is_recording
+    print("Recording started... Press 'Stop' to finish.")
+    recording = []  # Reset recording
+    with sd.InputStream(samplerate=fs, channels=1, callback=audio_callback):
+        while is_recording:
+            sd.sleep(100)  # Sleep while recording
+    
+    # After recording is stopped, save the file and transcribe
+    print("Recording stopped. Saving file and transcribing...")
+    recording_array = np.concatenate(recording, axis=0)
+    write(output_file, fs, recording_array)  # Save the recording as WAV
     transcribe_audio()
+
+# Callback function for sounddevice to handle chunks of audio data
+def audio_callback(indata, frames, time, status):
+    global recording
+    recording.append(indata.copy())  # Append the recorded chunk to the list
 
 # Function to stop recording
 def stop_recording():
-    transcription_text.set("Recording stopped.")
-    transcription_text.set("Recording finished. Now transcribing...")
-    sd.stop()
+    global is_recording
+    is_recording = False  # This will stop the recording loop
 
-# Function to transcribe the audio using Whisper
+# Function to transcribe the saved audio using Whisper
 def transcribe_audio():
-    # Run the transcription in a separate thread to avoid freezing the GUI
-    threading.Thread(target=transcribe_thread).start()
-
-def transcribe_thread():
-    # Load the recorded file and transcribe using Whisper
+    # Transcribe the audio file
     result = model.transcribe(output_file)
-    
-    # Update the transcription label in the GUI with the result
-    transcription_text.set(result['text'])
+    print("Transcription: ", result['text'])  # Print the transcription to the terminal
 
-# Create a Tkinter window (For testing only)
+# Create the Tkinter GUI
 window = tk.Tk()
 window.title("Voice to Text")
-window.geometry("400x300")
+window.geometry("300x150")
 
-# Record button to start recording
+# Button to start recording
 record_button = tk.Button(window, text="Record", command=start_recording, width=10)
 record_button.pack(pady=20)
 
-# Stop button to stop recording (not needed in this setup, but included)
+# Button to stop recording
 stop_button = tk.Button(window, text="Stop", command=stop_recording, width=10)
 stop_button.pack(pady=10)
-
-# Label to display the transcription
-transcription_text = tk.StringVar()
-transcription_label = tk.Label(window, textvariable=transcription_text, wraplength=350)
-transcription_label.pack(pady=20)
-
-# Set an initial value for the transcription text
-transcription_text.set("Transcription will appear here.")
 
 # Start the Tkinter event loop
 window.mainloop()
