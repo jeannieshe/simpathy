@@ -1,7 +1,7 @@
 # simpathy
-##SIMPATHY project at HackMIT 2024!
+## SIMPATHY project at HackMIT 2024!
 
-###A VR simulation to practice compassion in tough medical scenarios for doctors-to-be!
+### A VR simulation to practice compassion in tough medical scenarios for doctors-to-be!
 
 ## Inspiration
 Our project provides a VR simulation to train residents and future medical students with 10 different tricky medical situations, inspired by the MMI test in Canada. The user will attempt to connect with the VR-animated patient to practice their interpersonal skills. At the end of the conversation, Google Gemini AI will send an evaluation for the user’s performance on a scale from 0 to 10 on Empathy, Professionalism, and Medical skill.
@@ -21,5 +21,4 @@ We learn how to transcribe texts from voices using OpenAI Whisper, as well as ut
 ## What's next?
 More characters with more unique situations and better animations for the characters, i.e incorporate face emotions!
 
-## Check out [our presentation]([url](https://docs.google.com/presentation/d/1GhTf6ybHQ1rYUBNUPsyxLyXtUSu0VUYRH_obkCJZHi4/edit?usp=sharing
-)) here!
+## Check out [our presentation here!](https://docs.google.com/presentation/d/1GhTf6ybHQ1rYUBNUPsyxLyXtUSu0VUYRH_obkCJZHi4/edit?usp=sharing)
