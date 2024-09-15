@@ -1,3 +1,5 @@
+// contain scripts that create a wav file
+
 using System;
 using System.IO;
 using UnityEngine;
@@ -45,7 +47,9 @@ public static class WavUtility
         for (int i = 0; i < samples.Length; i++)
         {
             intData[i] = (short)(samples[i] * rescaleFactor);
-            Byte[] byteArr = BitConverter.GetBytes(intData[i]);
+            // Byte[] byteArr = BitConverter.GetBytes(intData[i]);
+            Byte[] byteArr = new Byte[2];
+            byteArr = BitConverter.GetBytes(intData[i]);
             byteArr.CopyTo(bytesData, i * 2);
         }
 

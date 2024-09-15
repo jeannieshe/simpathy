@@ -37,9 +37,63 @@ public class AudioRecorder : MonoBehaviour
         Debug.Log("Recording started...");
     }
 
-    public void StopRecordingAndSave()
+    void SaveAudioClip(AudioClip clip)
     {
-        if (!isRecording)
+        string filePath = Path.Combine(Application.persistentDataPath, "recording.wav");
+
+        // Convert audio clip to .wav file
+        byte[] wavFile = AudioClipToWav(clip);
+
+        // Write the file to disk
+        File.WriteAllBytes(filePath, wavFile);
+        Debug.Log("File saved at: " + filePath);
+    }
+
+    // Stop recording, trim the audio, save locally, and send to Flask backend
+void StopRecordingAndSendToBackend()
+{
+    if (Microphone.IsRecording(null))
+    {
+        int recordingPosition = Microphone.GetPosition(null); // Get the current position of the recording
+        Microphone.End(null); // Stop the recording
+        isRecording = false;
+        Debug.Log("Recording stopped, preparing to send to Flask...");
+        SaveAudioClip(recordedClip)
+        // Trim the audio clip to the actual recording length
+        AudioClip trimmedClip = TrimAudioClip(recordedClip, recordingPosition);
+        // Save the recording locally
+        string fullPath = Path.Combine(directoryPath, filePath);
+        WavUtility.Save(fullPath, trimmedClip);
+        Debug.Log($"Recording saved locally at {fullPath}");
+
+        // Send the audio file to Flask backend
+        StartCoroutine(SendAudioToFlask(fullPath));
+    }
+}
+
+// Function to trim the AudioClip
+AudioClip TrimAudioClip(AudioClip clip, int recordingPosition)
+{
+    int samples = recordingPosition * clip.channels;
+    float[] data = new float[samples];
+    clip.GetData(data, 0); // Get the recorded samples up to the actual recorded position
+
+    AudioClip trimmedClip = AudioClip.Create(clip.name + "_trimmed", samples, clip.channels, clip.frequency, false);
+    trimmedClip.SetData(data, 0); // Set the trimmed data to the new clip
+
+    return trimmedClip;
+}
+
+
+
+    // Coroutine to send the audio to Flask backend
+    IEnumerator SendAudioToFlask(string audioFilePath)
+    {
+        byte[] audioData = File.ReadAllBytes(audioFilePath);
+        WWWForm form = new WWWForm();
+        form.AddBinaryData("audio", audioData, "userSpeech.wav", "audio/wav");
+
+        using (UnityWebRequest request = UnityWebRequest.Post(flaskApiUrl, form))
         {
             Debug.LogWarning("No recording to stop.");
             return;
