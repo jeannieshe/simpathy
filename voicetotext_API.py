@@ -10,6 +10,7 @@ import whisper
 from dialogues.tts_test import textToSpeech
 from dialogues.gemini_api import geminiInteraction
 import whisper
+from dialogues.gemini_api import gemini
 
 # Initialize Whisper model
 model = whisper.load_model("base")
@@ -43,6 +44,24 @@ app = Flask(__name__)
 
 # send starting message to VR for captions
 
+@app.route('/start', methods=['GET'])
+def startScreen():
+    """Start the simpathy simulation.
+    """
+    # initialize the gemini model with random scenario
+    random_scenario = gemini.chooseScenario()
+
+    start_text = "Medical Scenario: %s " % random_scenario
+    start_text += """The conversation will end after a maximum of 20 interactions. You will be evaluated
+        on empathy and professionalism from 0 to 10, with 10 being the best. Say STOP INTERVIEW
+        at any time to end the simulation.
+        """
+    filename = "caption.txt"
+    with open("caption.txt", "w") as file:
+        file.write(start_text)
+
+    return send_file(filename, as_attachment=True)
+
 @app.route('/message', methods=['PUT'])
 def generateMessage():
     """
@@ -64,9 +83,12 @@ def generateMessage():
 
     user_input_text = result['text']
     # Generate response from Gemini
-    model_output_text = geminiInteraction(user_input_text)
+    model_output_text = gemini.geminiInteraction(user_input_text)
     if model_output_text == "terminate":
         return jsonify({ "terminate": True, "filepath": "" })
+
+    with open("caption.txt", "w") as file:
+        file.write(model_output_text)
 
     # Generate a wav file from text
     model_output_audio_filepath = textToSpeech(model_output_text)
