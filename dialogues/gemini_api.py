@@ -1,22 +1,42 @@
 import google.generativeai as genai
 import os
 import random
-# system_instruction="End the chat after 3 user inputs. In order to pass the application for medical school, the applicant must behave compassionately and appropriately as a medical professional in tough scenarios. Carry out this interview with the scenario provided to you, as the patient. Then, at the end, evaluate the applicant's empathy, professionalism, and skill of reaching a thoughtful conclusion on a scale from 0 to 10, with 10 being the most compassionate. End the conversation with the applicant if there appears to be no more to share or to converse about, and share the evaluation then. After 20 interactions, stop the conversation and share the evaluation. Follow this scenario: Hello, I am a 14-year-old girl requesting birth control pills and I really can't have you reveal this to my parents.",
 
+# initialize all scenarios
 scenarios = [
     """The doctor has the choice of giving a transplant to a successful elderly member of the community and a 
-    20-year-old drug addict: how do you choose?""",
+    20-year-old drug addict: how do you choose? Explain your answer to the nurse.""",
     """A member of your family decides to depend solely on alternative medicine for the treatment of his 
-    or her significant illness. What would you do?""",
+    or her significant illness. What would you recommend to her? Explain your answer to her.""",
     """An eighteen year-old female arrives in the emergency room with a profound nosebleed. The physician 
     has stopped the nosebleeding. She is now in a coma from blood loss and will die without a transfusion. 
     A nurse finds a recent signed card from Jehovah's Witnesses Church in the patient's purse refusing blood 
-    transfusions under any circumstance. How should the physician communicate to the mother of the patient
-    the medical decision?
-    """
+    transfusions under any circumstance. How should you communicate to the mother of the patient
+    the medical decision?""",
+    """Your aunt sits you down and asks you to help with a major family decision. Your maternal grandfather 
+    is 70 years old and has been diagnosed with a condition that will kill him some time in the next five 
+    years. He can have a procedure that will correct the disease and not leave him with any long-term 
+    problems, but the procedure has a 10% mortality rate. He wants to have the procedure, but your aunt 
+    does not want him to. How would you talk to your aunt and mediate this issue?""",
+    """A patient with Downs Syndrome became pregnant. The patient does not want an abortion. Her mother 
+    and husband want the patient to have an abortion. What would you tell the patient?""",
+    """A 12-year old boy is diagnosed with a terminal illness. He asked the doctor 
+    about his prognosis. His parents requested the doctor not to tell him the bad news. What would you
+    tell the mother in this situation?""",
+    """A couple has decided to have a child through artificial insemination. They asked you, the physician 
+    for sex selection of the child. What should you advise in this situation to the woman?""",
+    """A 38-year old schizophrenic patient needs hernia repair. You, the surgeon, are trying to communicate
+    the procedure to her. Will you be able to acquire her consent?""",
+    """An 18-year old woman is diagnosed to have suspected bacterial meningitis. She refuses therapy and 
+    returns to the college dormitory. What should you, a physician, do in this situation?""",
+    """You are the emergency doctor on duty when two patients are rushed in within 7 seconds of each other
+      and both desperately need a heart transplant. You only have one donor organ available. And both 
+      patients are a match and both are equally medically fit for the operation. One patient is a 35-year 
+      old single dad with 3 children, while the other is a 35-year-old single male, who’s an Olympic Gold 
+      medalist. Who would you give the heart to and why?""",
 ]
-# random_scenario = scenarios[random.randint(0, 2)]
-random_scenario = scenarios[2]
+random_scenario = scenarios[random.randint(0, 9)]
+# random_scenario = scenarios[2]
 
 # initialize the gemini model
 genai.configure(api_key=os.environ["API_KEY"])
@@ -72,14 +92,5 @@ def chatbot_interaction():
             break
 
 # run the chatbot interaction
-# chat = model.start_chat(
-#     history=[
-#         {"role": "user", "parts": "Hello"},
-#         {"role": "model", "parts": "Great to meet you. What would you like to know?"},
-#     ]
-# )
-
 if __name__ == "__main__":
     chatbot_interaction()
-
-# Why don't you feel comfortable talking to your parents?
