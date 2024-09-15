@@ -1,5 +1,4 @@
-# simpathy
-## SIMPATHY project at HackMIT 2024!
+# SIMPATHY project at HackMIT 2024!
 
 ### A VR simulation to practice compassion in tough medical scenarios for doctors-to-be!
 
@@ -21,4 +20,4 @@ We learn how to transcribe texts from voices using OpenAI Whisper, as well as ut
 ## What's next?
 More characters with more unique situations and better animations for the characters, i.e incorporate face emotions!
 
-## Check out [our presentation here!](https://docs.google.com/presentation/d/1GhTf6ybHQ1rYUBNUPsyxLyXtUSu0VUYRH_obkCJZHi4/edit?usp=sharing)
+## [Check out our presentation here!](https://docs.google.com/presentation/d/1GhTf6ybHQ1rYUBNUPsyxLyXtUSu0VUYRH_obkCJZHi4/edit?usp=sharing)
