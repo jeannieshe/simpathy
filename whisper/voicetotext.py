@@ -42,7 +42,8 @@ def audio_callback(indata, frames, time, status):
 # Function to stop recording
 def stop_recording():
     global is_recording
-    is_recording = False  # This will stop the recording loop
+    is_recording = False
+    sd.stop()  # This will stop the recording loop
 
 # Function to transcribe the saved audio using Whisper
 def transcribe_audio():
@@ -51,17 +52,16 @@ def transcribe_audio():
     print("Transcription: ", result['text'])  # Print the transcription to the terminal
 
 # Create the Tkinter GUI
-# window = tk.Tk()
-# window.title("Voice to Text")
-# window.geometry("300x150")
+window = tk.Tk()
+window.title("Voice to Text")
+window.geometry("300x150")
 
 # Button to start recording
-# record_button = tk.Button(window, text="Record", command=start_recording, width=10)
-# record_button.pack(pady=20)
+record_button = tk.Button(window, text="Record", command=start_recording, width=10)
+record_button.pack(pady=20)
 
 # Button to stop recording
-#stop_button = tk.Button(window, text="Stop", command=stop_recording, width=10)
-#stop_button.pack(pady=10)
+stop_button = tk.Button(window, text="Stop", command=stop_recording, width=10)
+stop_button.pack(pady=10)
 
-# Start the Tkinter event loop
-# window.mainloop()
+window.mainloop()
