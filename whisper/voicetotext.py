@@ -1,4 +1,4 @@
-import tkinter as tk
+import tkinter as tk # Testing only
 import sounddevice as sd
 from scipy.io.wavfile import write
 import whisper
