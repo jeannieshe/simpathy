@@ -83,6 +83,18 @@ public class ControllerAudioRecorder : MonoBehaviour
         Debug.Log("Recording started...");
     }
 
+    void SaveAudioClip(AudioClip clip)
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, "recording.wav");
+
+        // Convert audio clip to .wav file
+        byte[] wavFile = AudioClipToWav(clip);
+
+        // Write the file to disk
+        File.WriteAllBytes(filePath, wavFile);
+        Debug.Log("File saved at: " + filePath);
+    }
+
     // Stop recording, trim the audio, save locally, and send to Flask backend
 void StopRecordingAndSendToBackend()
 {
@@ -92,10 +104,9 @@ void StopRecordingAndSendToBackend()
         Microphone.End(null); // Stop the recording
         isRecording = false;
         Debug.Log("Recording stopped, preparing to send to Flask...");
-
+        SaveAudioClip(recordedClip)
         // Trim the audio clip to the actual recording length
         AudioClip trimmedClip = TrimAudioClip(recordedClip, recordingPosition);
-
         // Save the recording locally
         string fullPath = Path.Combine(directoryPath, filePath);
         WavUtility.Save(fullPath, trimmedClip);
@@ -118,6 +129,7 @@ AudioClip TrimAudioClip(AudioClip clip, int recordingPosition)
 
     return trimmedClip;
 }
+
 
 
     // Coroutine to send the audio to Flask backend
