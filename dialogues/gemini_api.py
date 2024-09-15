@@ -1,69 +1,38 @@
 import google.generativeai as genai
 import os
-
-# define system instructions to set the character of the AI (the person in the scenario)
-instructions = {
-    "behavior": "You are struggling with conflicting thoughts as a young teenage girl and are looking for advice. You are anxious and unsure of yourself."
-}
-
-context = "In order to pass the application for medical school, the applicant must behave compassionately and appropriately as a medical professional in tough scenarios. Carry out this interview with the scenario provided to you, as the patient. Then, at the end, evaluate the applicant's empathy, professionalism, and skill of reaching a thoughtful conclusion on a scale from 0 to 10, with 10 being the most compassionate. End the conversation with the applicant after 3 interactions, or if there appears to be no more to share or to converse about, whichever comes first, and share the score evaluation and explanation."
+# system_instruction="End the chat after 3 user inputs. In order to pass the application for medical school, the applicant must behave compassionately and appropriately as a medical professional in tough scenarios. Carry out this interview with the scenario provided to you, as the patient. Then, at the end, evaluate the applicant's empathy, professionalism, and skill of reaching a thoughtful conclusion on a scale from 0 to 10, with 10 being the most compassionate. End the conversation with the applicant if there appears to be no more to share or to converse about, and share the evaluation then. After 20 interactions, stop the conversation and share the evaluation. Follow this scenario: Hello, I am a 14-year-old girl requesting birth control pills and I really can't have you reveal this to my parents.",
 
 # initialize the gemini model
 genai.configure(api_key=os.environ["API_KEY"])
 model = genai.GenerativeModel(
     "gemini-1.5-flash",
-    system_instruction="End the chat after 3 user inputs. In order to pass the application for medical school, the applicant must behave compassionately and appropriately as a medical professional in tough scenarios. Carry out this interview with the scenario provided to you, as the patient. Then, at the end, evaluate the applicant's empathy, professionalism, and skill of reaching a thoughtful conclusion on a scale from 0 to 10, with 10 being the most compassionate. End the conversation with the applicant if there appears to be no more to share or to converse about, and share the evaluation then. After 20 interactions, stop the conversation and share the evaluation. Follow this scenario: Hello, I am a 14-year-old girl requesting birth control pills and I really can't have you reveal this to my parents.",
-    # context=context
+    system_instruction="Limit the chat to 3 user inputs in total. The goal of the applicant is to demonstrate empathy, professionalism, and appropriate behavior expected of a medical professional in challenging ethical scenarios. You (the AI) will act as the patient or scenario participant in the conversation, based on the scenario provided. Scenario: You have the choice of giving a transplant to a successful elderly member of the community and a 20-year-old drug addict: how do you choose? At the end of the interaction, evaluate the applicant's performance on a scale from 0 to 10 for each of the following: Empathy: Ability to understand and respond to emotional and ethical nuances. Professionalism: Adherence to medical ethics, professionalism, and respectful behavior. Skill in reaching a thoughtful conclusion: Ability to reason, explain, and justify their decision. Use 10 as the score for the most compassionate and professional response. If there appears to be no more to share or discuss before the 3-user-input limit, conclude the conversation early and provide the evaluation."
 )
-# define a specific scenario as content for the conversation
-history = [
-    # {"role": "system", "parts": ["You are struggling with conflicting thoughts as a young teenage girl and are looking for advice. You are anxious and unsure of yourself."]},
-    # {"role": "model", "parts": ["Hello, I am a 14-year-old girl requesting birth control pills and I really can't have you reveal this to my parents."]},
-    # {"role": "model", "parts": []}
-]
 
 # start a chat with the scenario and system instructions
-chat = model.start_chat(
-    history=history,
-    #system_instruction=instructions,
-    #context=context,
-    # temperature=0.7,
-    # max_tokens=150,
-    # top_p=0.9,
-    # frequency_penalty=0.5,
-    # presence_penalty=0.6
-)
+chat = model.start_chat()
 
 # function to interact with the chatbot
 def chatbot_interaction():
     # display the initial prompt
-    print("Medical Scenario:")
-    for exchange in history:
-        print(f"{exchange['role'].capitalize()}: {exchange['parts']}")
+    print("Medical Scenario: ")
 
     # loop for user interaction
     while True:
         user_input = input("You: ") # this is where to add the whisper text interaction
         
         # add user input to chat history
-        print(user_input)
-        # chat.history.append({"role": "user", "parts": [user_input]})
-        print(chat.history)
+        chat.history.append({"role": "user", "parts": [user_input]})
         
         # generate a response from the model
-
-        # print(user_input, chat.history)
-
         response = chat.send_message(user_input)
-        # print(response.candidates[0].content.parts[0].text)
         model_reply = response.candidates[0].content.parts[0].text
 
         # add the model's response to the chat history
-        print(model_reply)
-        # chat.history.append({"role": "model", "parts": [model_reply]})
+        chat.history.append({"role": "model", "parts": [model_reply]})
 
         # print the model's reply to the terminal
-        print(f"Chatbot: {model_reply}") # this is where to add the text to voice
+        print(f"Patient: {model_reply}") # this is where to add the text to voice
 
         # exit condition
         if user_input.lower() in ["exit", "quit"]:
