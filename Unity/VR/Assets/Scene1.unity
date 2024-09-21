@@ -263,7 +263,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519933796}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 122004be5326b45e7ac8ae0783700dad, type: 3}
   m_Name: 
@@ -600,7 +600,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: "Medical Scenario: An 18-year old woman is diagnosed to have suspected
+    bacterial meningitis. \nShe refuses therapy and \r\nreturns to the college dormitory.
+    \nWhat should you, a physician, do in this situation? The conversation will end
+    after a maximum of 20 interactions. \nYou will be evaluated\r \non empathy and
+    professionalism from 0 to 10, with 10 being the best. \n\nSay STOP INTERVIEW\r
+    \nat any time to end the simulation.\r\n        "
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -663,7 +668,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: -345.3677, y: -210.08096, z: -346.09692, w: -221.21327}
+  m_margin: {x: -345.3677, y: -210.08096, z: -355.19724, w: -221.21327}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -813,6 +818,7 @@ GameObject:
   - component: {fileID: 1718061566}
   - component: {fileID: 1718061568}
   - component: {fileID: 1718061567}
+  - component: {fileID: 1718061569}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -878,6 +884,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1718061565}
   m_CullTransparentMesh: 1
+--- !u!114 &1718061569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718061565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 122004be5326b45e7ac8ae0783700dad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textMeshPro: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
