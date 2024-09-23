@@ -37,22 +37,113 @@ public class AudioRecorder : MonoBehaviour
         Debug.Log("Recording started...");
     }
 
+    // public void StopRecordingAndSave()
+    // {
+    //     if (!isRecording)
+    //     {
+    //         Debug.LogWarning("No recording to stop.");
+    //         return;
+    //     }
+
+    //     // Stop recording
+    //     Microphone.End(microphoneDevice);
+    //     isRecording = false;
+    //     Debug.Log("Recording stopped.");
+
+    //     // Save the recorded AudioClip as a .wav file
+    //     SaveAudioClip(audioClip);
+    // }
+
     public void StopRecordingAndSave()
+{
+    if (!isRecording)
     {
-        if (!isRecording)
-        {
-            Debug.LogWarning("No recording to stop.");
-            return;
-        }
-
-        // Stop recording
-        Microphone.End(microphoneDevice);
-        isRecording = false;
-        Debug.Log("Recording stopped.");
-
-        // Save the recorded AudioClip as a .wav file
-        SaveAudioClip(audioClip);
+        Debug.LogWarning("No recording to stop.");
+        return;
     }
+
+    // Stop recording
+    Microphone.End(microphoneDevice);
+    isRecording = false;
+    Debug.Log("Recording stopped.");
+
+    // Save the recorded AudioClip as a .wav file
+    string filePath = Path.Combine(Application.persistentDataPath, "recording.wav");
+    SaveAudioClip(audioClip, filePath);
+
+    // Send the saved .wav file to the Flask backend
+    StartCoroutine(SendAudioToFlask(filePath));
+}
+
+private IEnumerator SendAudioToFlask(string filePath)
+{
+    // Read the saved .wav file into a byte array
+    byte[] audioData = File.ReadAllBytes(filePath);
+
+    // Create a form to hold the file data
+    WWWForm form = new WWWForm();
+    form.AddBinaryData("audio_file", audioData, "recording.wav", "audio/wav");
+
+    // Send the request to Flask using UnityWebRequest
+    UnityWebRequest www = UnityWebRequest.Post("http://localhost:3000/message", form); // Update with your Flask server URL
+
+    // Wait for the request to complete
+    yield return www.SendWebRequest();
+
+    // Check for errors
+    if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+{
+    Debug.LogError("Error sending audio to Flask: " + www.error);
+}
+else
+{
+    Debug.Log("Audio successfully sent to Flask. Response: " + www.downloadHandler.text);
+
+    // Assuming Flask returns JSON (e.g., {"terminate": false, "filepath": "path_to_file.wav"})
+    var jsonResponse = JsonUtility.FromJson<FlaskResponse>(www.downloadHandler.text);
+    if (!jsonResponse.terminate && !string.IsNullOrEmpty(jsonResponse.filepath))
+    {
+        StartCoroutine(DownloadProcessedAudio(jsonResponse.filepath));
+    }
+    else
+    {
+        Debug.Log("Conversation terminated or no audio file returned.");
+    }
+}
+}
+
+[Serializable]
+private class FlaskResponse
+{
+    public bool terminate;
+    public string filepath;
+}
+
+
+
+private IEnumerator DownloadProcessedAudio(string fileUrl)
+{
+    UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(fileUrl, AudioType.WAV);
+    yield return www.SendWebRequest();
+
+    if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+    {
+        Debug.LogError("Error downloading processed audio: " + www.error);
+    }
+    else
+    {
+        AudioClip clip = DownloadHandlerAudioClip.GetContent(www);
+        PlayAudioClip(clip);
+    }
+}
+
+private void PlayAudioClip(AudioClip clip)
+{
+    AudioSource audioSource = GetComponent<AudioSource>();
+    audioSource.clip = clip;
+    audioSource.Play();
+}
+
 
     private void SaveAudioClip(AudioClip clip)
     {
