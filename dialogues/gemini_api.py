@@ -56,7 +56,7 @@ model = genai.GenerativeModel(
     Professionalism: Adherence to medical ethics, professionalism, and respectful behavior. 
     Skill in reaching a thoughtful conclusion: Ability to reason, explain, and justify their decision. 
     Use 10 as the score for the most compassionate and professional response. End the conversation after
-    having a meaningful conversation with the user, or end the conversation after a maximum of 20 interactions, 
+    having a meaningful conversation with the user, or end the conversation after a maximum of 3 interactions, 
     whichever comes first. When concluding the conversation, provide the evaluation. When you output the evaluation, 
     end it with the words 'End of Interview'.""" % random_scenario
 )
@@ -217,9 +217,11 @@ class gemini():
         """
         # add user input to chat history
         gemini.chat.history.append({"role": "user", "parts": [user_input]})
+        print(gemini.chat.history)
         
         # generate a response from the model
         response = gemini.chat.send_message(user_input)
+        print("Response: ", response)
         model_reply = response.candidates[0].content.parts[0].text
 
         # add the model's response to the chat history
